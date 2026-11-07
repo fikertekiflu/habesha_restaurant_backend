@@ -19,16 +19,31 @@ const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const EXTRA_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (origin === FRONTEND_URL) return true;
+  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) return true;
+  if (EXTRA_ORIGINS.includes(origin)) return true;
+  // Vercel preview / production hostnames
+  try {
+    const host = new URL(origin).hostname;
+    if (host.endsWith('.vercel.app')) return true;
+  } catch {
+    return false;
+  }
+  return false;
+};
 
 // Setup Socket.io for Real-time events
 const io = new Server(server, {
   cors: {
     origin: (origin, callback) => {
-      if (!origin || origin === FRONTEND_URL || origin.startsWith('http://localhost:')) {
-        callback(null, true);
-      } else {
-        callback(null, true);
-      }
+      callback(null, isAllowedOrigin(origin));
     },
     credentials: true,
   },
@@ -51,11 +66,7 @@ app.set('io', io);
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || origin === FRONTEND_URL || origin.startsWith('http://localhost:')) {
-        callback(null, true);
-      } else {
-        callback(null, true);
-      }
+      callback(null, isAllowedOrigin(origin));
     },
     credentials: true,
   })
