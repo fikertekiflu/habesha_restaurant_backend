@@ -1,0 +1,588 @@
+{
+  "info": {
+    "_postman_id": "b1a2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "name": "X-Restorant API",
+    "description": "Comprehensive Postman API documentation and collection for X-Restorant backend services.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('authToken', jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"2222\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates staff members. Stores the returned JWT in the collection variable `authToken`."
+          }
+        },
+        {
+          "name": "Staff Login by PIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pin\": \"2222\",\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Direct PIN login without username."
+          }
+        },
+        {
+          "name": "Get Current User Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Fetches current logged-in staff member profile."
+          }
+        },
+        {
+          "name": "Get Staff List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "staff"]
+            },
+            "description": "Admin/Manager only. Returns list of staff members."
+          }
+        },
+        {
+          "name": "Create Staff User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kidist (Waiter)\",\n  \"username\": \"kidist\",\n  \"role\": \"waiter\",\n  \"pin\": \"1212\",\n  \"phone\": \"+251911998877\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "staff"]
+            },
+            "description": "Admin only. Creates a new staff member account."
+          }
+        },
+        {
+          "name": "Logout Staff",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Logs out staff member and clears session cookies."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Menu & Categories",
+      "item": [
+        {
+          "name": "Get Menu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/menu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menu"]
+            },
+            "description": "Public. Returns bilingual categories and active dishes."
+          }
+        },
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": {\n    \"en\": \"Shekla Tibs\",\n    \"am\": \"የሸክላ ጥብስ\"\n  },\n  \"description\": {\n    \"en\": \"Sizzling seasoned beef served in hot clay dish with peppers and rosemary\",\n    \"am\": \"በሙቅ የሸክላ ሳህን የሚቀርብ ልዩ የከብት ጥብስ\"\n  },\n  \"price\": 500,\n  \"category\": \"CATEGORY_ID_HERE\",\n  \"spiceLevel\": \"Medium\",\n  \"isFasting\": false,\n  \"prepTimeMinutes\": 15,\n  \"imageUrl\": \"https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/menu/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menu", "items"]
+            },
+            "description": "Admin/Manager only. Creates a new menu item."
+          }
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 580,\n  \"spiceLevel\": \"Spicy\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/menu/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menu", "items", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MENU_ITEM_ID"
+                }
+              ]
+            },
+            "description": "Admin/Manager only. Updates menu item fields."
+          }
+        },
+        {
+          "name": "Toggle Menu Item Availability",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/menu/items/:id/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menu", "items", ":id", "toggle"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MENU_ITEM_ID"
+                }
+              ]
+            },
+            "description": "Admin/Manager/Kitchen. Toggles in-stock status and broadcasts real-time event."
+          }
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/menu/items/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "menu", "items", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MENU_ITEM_ID"
+                }
+              ]
+            },
+            "description": "Admin only. Deletes a menu item."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tables",
+      "item": [
+        {
+          "name": "Get Specific Table Details (QR Scan)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tables/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tables", "1"]
+            },
+            "description": "Public. Used when customer scans table QR code."
+          }
+        },
+        {
+          "name": "Call Waiter",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tables/1/call",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tables", "1", "call"]
+            },
+            "description": "Public. Customer alerts waiter to table."
+          }
+        },
+        {
+          "name": "Request Bill",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tables/1/bill",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tables", "1", "bill"]
+            },
+            "description": "Public. Customer requests bill from table."
+          }
+        },
+        {
+          "name": "Get All Tables (Staff Overview)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tables",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tables"]
+            },
+            "description": "Staff only. Returns floor status with active table orders."
+          }
+        },
+        {
+          "name": "Clear Table",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tables/1/clear",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tables", "1", "clear"]
+            },
+            "description": "Staff only. Resets table status to available."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Place Order (Table or Delivery)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"dine_in\",\n  \"tableNumber\": 1,\n  \"customer\": {\n    \"name\": \"Abebe Beshu\",\n    \"phone\": \"+251911223344\"\n  },\n  \"items\": [\n    {\n      \"menuItemId\": \"ITEM_ID_HERE\",\n      \"qty\": 2,\n      \"notes\": \"Medium spice, extra injera please\"\n    }\n  ],\n  \"payment\": {\n    \"method\": \"telebirr\",\n    \"status\": \"pending\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"]
+            },
+            "description": "Public. Places a new Dine-in, Takeaway, or Delivery order."
+          }
+        },
+        {
+          "name": "Get All Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orders?status=pending&type=dine_in&limit=50",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "description": "Optional filter: pending, preparing, ready, served, delivered, settled, cancelled"
+                },
+                {
+                  "key": "type",
+                  "value": "dine_in",
+                  "description": "Optional filter: dine_in, takeaway, delivery"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            },
+            "description": "Staff only. Fetches orders with optional status/type filters."
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ready\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/:id/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ":id", "status"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ORDER_ID"
+                }
+              ]
+            },
+            "description": "Staff only. Moves order through pipeline: approved, preparing, ready, served, delivered, cancelled."
+          }
+        },
+        {
+          "name": "Settle Order Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"method\": \"telebirr\",\n  \"referenceCode\": \"TEL987654321\",\n  \"splits\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/:id/settle",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ":id", "settle"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ORDER_ID"
+                }
+              ]
+            },
+            "description": "Cashier/Admin/Manager only. Verifies payment reference and closes out order."
+          }
+        },
+        {
+          "name": "Update Driver Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lat\": 9.0249,\n  \"lng\": 38.7469\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/:id/driver-location",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "orders", ":id", "driver-location"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "ORDER_ID"
+                }
+              ]
+            },
+            "description": "Driver/Admin only. Streams live GPS coordinates for in-flight delivery order."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Settings",
+      "item": [
+        {
+          "name": "Get Restaurant Settings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "settings"]
+            },
+            "description": "Public. Gets restaurant information, payment options, and WiFi credentials."
+          }
+        },
+        {
+          "name": "Update Restaurant Settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": {\n    \"en\": \"Abyssinia Lounge & Restaurant\",\n    \"am\": \"አቢሲኒያ ላውንጅ እና ሬስቶራንት\"\n  },\n  \"wifiName\": \"Abyssinia_Guest_WiFi\",\n  \"wifiPass\": \"Abyssinia2026\",\n  \"telebirrMerchantCode\": \"887766\",\n  \"directKitchenRouting\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/settings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "settings"]
+            },
+            "description": "Admin/Manager only. Updates restaurant configurations."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "System Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Public. Checks server status and timestamp."
+          }
+        }
+      ]
+    }
+  ]
+}
